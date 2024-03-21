@@ -1,0 +1,26 @@
+version: '3'
+name: reverse-proxy
+services:
+    nginx:
+        image: nginx
+        container_name: reverse-proxy-nginx
+        hostname: reverse-proxy-nginx
+        volumes:
+            - ./conf:/etc/nginx/conf.d:ro
+            - ./certbot/conf:/etc/letsencrypt:ro
+            - ./certbot/www:/var/www/certbot:ro
+        ports:
+            - 8000:80
+            - 8443:443
+        restart: unless-stopped
+    certbot:
+        image: certbot/certbot
+        container_name: reverse-proxy-certbot
+        hostname: reverse-proxy-certbot
+        volumes:
+            - ./certbot/conf:/etc/letsencrypt:rw
+            - ./certbot/www:/var/www/certbot:rw
+
+networks:
+  default:
+    name: reverse-proxy-network
