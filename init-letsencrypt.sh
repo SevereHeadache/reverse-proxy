@@ -6,6 +6,11 @@ data_path="./certbot"
 email="oysterpost@proton.me" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
+if [ ${#domains[@]} -eq 0 ]; then
+  echo "Error: No domains"
+  exit 1
+fi
+
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
   mkdir -p "$data_path/conf"
@@ -45,7 +50,6 @@ for domain in "${domains[@]}"; do
 
 
   echo "### Requesting Let's Encrypt certificate for $domain ..."
-  domain_args="$domain_args -d $domain"
 
   # Select appropriate email arg
   case "$email" in
@@ -60,7 +64,7 @@ for domain in "${domains[@]}"; do
     certbot certonly --webroot -w /var/www/certbot \
       $staging_arg \
       $email_arg \
-      $domain_args \
+      -d $domain \
       --rsa-key-size $rsa_key_size \
       --agree-tos \
       --force-renewal" certbot
