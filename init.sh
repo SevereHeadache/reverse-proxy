@@ -19,14 +19,13 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
   echo
 fi
 
-for domain in "${domains[@]}"; do
-  echo "### Cleaning old sertificates for $domain ..."
-  docker compose run --rm --entrypoint "\
-    rm -Rf /etc/letsencrypt/live/$domain && \
-    rm -Rf /etc/letsencrypt/archive/$domain && \
-    rm -Rf /etc/letsencrypt/renewal/$domain.conf" certbot
-  echo
+# Select appropriate email arg
+case "$email" in
+  "") email_arg="--register-unsafely-without-email" ;;
+  *) email_arg="--email $email" ;;
+esac
 
+for domain in "${domains[@]}"; do
   echo "### Creating dummy certificate for $domain ..."
   path="/etc/letsencrypt/live/$domain"
   mkdir -p "$data_path/conf/live/$domain"
@@ -36,11 +35,13 @@ for domain in "${domains[@]}"; do
       -out '$path/fullchain.pem' \
       -subj '/CN=localhost'" certbot
   echo
+done
 
-  echo "### Starting nginx ..."
-  docker compose up --force-recreate -d nginx
-  echo
+echo "### Starting nginx ..."
+docker compose up --force-recreate -d nginx
+echo
 
+for domain in "${domains[@]}"; do
   echo "### Deleting dummy certificate for $domain ..."
   docker compose run --rm --entrypoint "\
     rm -Rf /etc/letsencrypt/live/$domain && \
@@ -48,18 +49,9 @@ for domain in "${domains[@]}"; do
     rm -Rf /etc/letsencrypt/renewal/$domain.conf" certbot
   echo
 
-
   echo "### Requesting Let's Encrypt certificate for $domain ..."
-
-  # Select appropriate email arg
-  case "$email" in
-    "") email_arg="--register-unsafely-without-email" ;;
-    *) email_arg="--email $email" ;;
-  esac
-
   # Enable staging mode if needed
   if [ $staging != "0" ]; then staging_arg="--staging"; fi
-
   docker compose run --rm --entrypoint "\
     certbot certonly --webroot -w /var/www/certbot \
       $staging_arg \
@@ -71,5 +63,5 @@ for domain in "${domains[@]}"; do
   echo
 done
 
-echo "### Reloading nginx ..."
-docker compose exec nginx nginx -s reload
+echo "### Restarting nginx ..."
+docker compose up --force-recreate -d nginx
