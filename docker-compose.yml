@@ -1,7 +1,7 @@
 name: reverse-proxy
 services:
     nginx:
-        image: nginx
+        image: nginx:alpine
         container_name: reverse-proxy-nginx
         hostname: reverse-proxy-nginx
         volumes:
@@ -9,10 +9,8 @@ services:
             - ./certbot/conf:/etc/letsencrypt:ro
             - ./certbot/www:/var/www/certbot:ro
         ports:
-            - 8000:80
-            - 8443:443
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
+            - ${PORT_HTTP}:80
+            - ${PORT_HTTPS}:443
         restart: unless-stopped
     certbot:
         image: certbot/certbot
@@ -21,6 +19,17 @@ services:
         volumes:
             - ./certbot/conf:/etc/letsencrypt:rw
             - ./certbot/www:/var/www/certbot:rw
+    app:
+        image: golang:1.21.10-alpine
+        container_name: reverse-proxy-app
+        hostname: reverse-proxy-app
+        volumes:
+            - ./app:/app:rw
+            - ./.env:/.env:ro
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        working_dir: /app
+        command: sh -c "go build -o main . && ./main"
 
 networks:
   default:
