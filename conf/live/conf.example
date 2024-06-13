@@ -21,6 +21,9 @@
 #     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
 #     location / {
-#         proxy_pass http://172.0.30.1:80;
+#         proxy_pass http://reverse-proxy-app;
+#         proxy_set_header X-Forwarded-For $host;
+#         proxy_set_header X-Forwarded-Host http://host.docker.internal:80;
+#         proxy_pass_request_headers on;
 #     }
 # }

@@ -169,6 +169,7 @@ func authenticate(writer http.ResponseWriter, request *http.Request) bool {
 	if cookie, err := request.Cookie("Authorization"); err == nil {
 		authRequest.Header.Add("Authorization", cookie.Value)
 	}
+	authRequest.Header.Add("X-Client", request.Header.Get("X-Forwarded-For"))
 
 	response, err := client.Do(authRequest)
 	if err != nil {
@@ -181,8 +182,6 @@ func authenticate(writer http.ResponseWriter, request *http.Request) bool {
 		return false
 	}
 	defer response.Body.Close()
-
-	log.Print(response.StatusCode)
 
 	switch response.StatusCode {
 	case 200:
