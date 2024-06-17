@@ -67,7 +67,7 @@ func handleRequest(writer http.ResponseWriter, request *http.Request) {
 	}
 	proxyRequest, err := http.NewRequest(
 		request.Method,
-		targetUrl,
+		targetUrl + request.URL.Path,
 		request.Body,
 	)
 	if err != nil {
