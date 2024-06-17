@@ -28,7 +28,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	if url, exists := os.LookupEnv("AUTH_SERVICE_URL"); exists == false {
+	if url, exists := os.LookupEnv("AUTH_SERVICE_URL"); !exists {
 		log.Fatal("Auth service url not configured")
 		os.Exit(1)
 	} else {
@@ -52,7 +52,7 @@ func handleRequest(writer http.ResponseWriter, request *http.Request) {
 	targetUrl := request.Header.Get("X-Forwarded-Host")
 	log.Print("Proxy request " + targetUrl)
 
-	if authenticated := authenticate(writer, request); authenticated == false {
+	if authenticated := authenticate(writer, request); !authenticated {
 		return
 	}
 
