@@ -50,7 +50,7 @@ func main() {
 
 func handleRequest(writer http.ResponseWriter, request *http.Request) {
 	targetUrl := request.Header.Get("X-Forwarded-Host")
-	log.Print("Proxy request "+targetUrl)
+	log.Print("Proxy request " + targetUrl)
 
 	if authenticated := authenticate(writer, request); authenticated == false {
 		return
@@ -67,7 +67,7 @@ func handleRequest(writer http.ResponseWriter, request *http.Request) {
 	}
 	proxyRequest, err := http.NewRequest(
 		request.Method,
-		targetUrl + request.URL.Path,
+		targetUrl+request.URL.Path,
 		request.Body,
 	)
 	if err != nil {
