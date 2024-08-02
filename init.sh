@@ -1,9 +1,11 @@
 #!/bin/bash
 
+source .env
+
 domains=("$@")
 rsa_key_size=4096
 data_path="./certbot"
-email="oysterpost@proton.me" # Adding a valid address is strongly recommended
+email=$CERTBOT_EMAIL # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ ${#domains[@]} -eq 0 ]; then

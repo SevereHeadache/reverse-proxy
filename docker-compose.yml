@@ -9,8 +9,8 @@ services:
             - ./certbot/conf:/etc/letsencrypt:ro
             - ./certbot/www:/var/www/certbot:ro
         ports:
-            - ${PORT_HTTP}:80
-            - ${PORT_HTTPS}:443
+            - ${PORT_HTTP:-8080}:80
+            - ${PORT_HTTPS:-8443}:443
         restart: unless-stopped
     certbot:
         image: certbot/certbot
