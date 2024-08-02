@@ -1,6 +1,7 @@
 # Nginx reverse proxy server
 
-Nginx docker container.
+Nginx with proxy app.
+Works in pair with [authservice](https://github.com/SevereHeadache/authservice)
 Passes requests to proxied servers.
 
 1. Start server  
